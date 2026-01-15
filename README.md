@@ -57,16 +57,23 @@
 
 ## โครงสร้างโค้ด (Express.js Example)
 ```js
-// routes/rooms.route.js
-router.get("/", roomController.getRooms);
-router.get("/:id", roomController.getRoomById);
-router.post("/", authStaff, roomController.createRoom);
-router.put("/:id", authStaff, roomController.updateRoom);
-router.delete("/:id", authStaff, roomController.deleteRoom);
-
-// routes/bookings.route.js
-router.get("/", authStaff, bookingController.getAllBookings);
-router.get("/my", authUser, bookingController.getMyBookings);
-router.post("/", authUser, bookingController.createBooking);
-router.delete("/:id", authUser, bookingController.cancelBooking);
-router.put("/:id/approve", authStaff, bookingController.approveBooking);
+{
+  "room_id": 101,
+  "booking_date": "2026-01-15",
+  "start_time": "09:00",
+  "end_time": "12:00",
+  "purpose": "ประชุมโครงงาน",
+  "attendees": 8
+}
+{
+  "id": 1234,
+  "room_id": 101,
+  "room_name": "ห้อง A301",
+  "user_id": 567,
+  "booking_date": "2026-01-15",
+  "start_time": "09:00",
+  "end_time": "12:00",
+  "purpose": "ประชุมโครงงาน",
+  "status": "pending",
+  "created_at": "2026-01-08T10:30:00Z"
+}
