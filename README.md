@@ -1,7 +1,20 @@
 # RESTful API Design - Meeting Room Booking System
 
-## Rooms API
-### Endpoints
+## 🔑 Auth API
+- **POST /api/auth/login**
+  - Login เข้าสู่ระบบ
+- **POST /api/auth/register**
+  - Register สมัครสมาชิกใหม่
+
+---
+
+## 👤 Users API
+- **GET /api/users/profile**
+  - ดูข้อมูลตัวเอง (ต้อง login ก่อน)
+
+---
+
+## 🏢 Rooms API
 - **GET /api/rooms**
   - ดึงรายการห้องทั้งหมด (รองรับ filter เช่น capacity, location)
   - Roles: User, Staff
@@ -24,8 +37,7 @@
 
 ---
 
-## Bookings API
-### Endpoints
+## 📅 Bookings API
 - **GET /api/bookings**
   - ดึงรายการการจองทั้งหมด
   - Roles: Staff
@@ -48,15 +60,25 @@
 
 ---
 
-## Flow ตัวอย่าง
-1. **User** → `POST /api/bookings` → ระบบตรวจสอบห้องว่าง → ถ้าว่าง → สร้าง booking (status = `pending`)
-2. **Staff** → `PUT /api/bookings/:id/approve` → เปลี่ยนสถานะ booking เป็น `approved`
-3. **User** → `DELETE /api/bookings/:id` → ยกเลิกการจอง (status = `cancelled`)
+## 🔗 Flow ตัวอย่าง
+1. **User** → `POST /api/auth/login` → เข้าสู่ระบบ  
+2. **User** → `POST /api/bookings` → ระบบตรวจสอบห้องว่าง → ถ้าว่าง → สร้าง booking (status = `pending`)  
+3. **Staff** → `PUT /api/bookings/:id/approve` → เปลี่ยนสถานะ booking เป็น `approved`  
+4. **User** → `DELETE /api/bookings/:id` → ยกเลิกการจอง (status = `cancelled`)  
+5. **User** → `GET /api/users/profile` → ดูข้อมูลตัวเอง  
 
 ---
 
-## โครงสร้างโค้ด (Express.js Example)
+## 🛠️ ตัวอย่างโค้ด Router (Express.js)
+
 ```js
+// routes/auth.route.js
+router.post("/login", authController.login);
+router.post("/register", authController.register);
+
+// routes/users.route.js
+router.get("/profile", authUser, userController.getProfile);
+
 // routes/rooms.route.js
 router.get("/", roomController.getRooms);
 router.get("/:id", roomController.getRoomById);
@@ -66,7 +88,7 @@ router.delete("/:id", authStaff, roomController.deleteRoom);
 
 // routes/bookings.route.js
 router.get("/", authStaff, bookingController.getAllBookings);
-router.get("/me", authUser, bookingController.getMyBookings);
+router.get("/my", authUser, bookingController.getMyBookings);
 router.post("/", authUser, bookingController.createBooking);
 router.delete("/:id", authUser, bookingController.cancelBooking);
 router.put("/:id/approve", authStaff, bookingController.approveBooking);
