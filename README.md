@@ -77,8 +77,9 @@
   "purpose": "ประชุมโครงการ",
   "attendees": 8
 }
-
-
+```
+**Response (201 Created):**
+```json
 {
   "id": 1234,
   "room_id": 101,
