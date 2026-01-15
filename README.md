@@ -1,154 +1,72 @@
-# 🔑 Auth API
-POST /api/auth/login
-Content-Type: application/json
+# RESTful API Design - Meeting Room Booking System
 
-{
-  "email": "user@example.com",
-  "password": "123456"
-}
+## Rooms API
+### Endpoints
+- **GET /api/rooms**
+  - ดึงรายการห้องทั้งหมด (รองรับ filter เช่น capacity, location)
+  - Roles: User, Staff
 
-Response 200 OK
-{
-  "message": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
-}
+- **GET /api/rooms/:id**
+  - ดึงข้อมูลห้องประชุมตาม room_id
+  - Roles: User, Staff
 
----
+- **POST /api/rooms**
+  - สร้างห้องประชุมใหม่
+  - Roles: Staff
 
-POST /api/auth/register
-Content-Type: application/json
+- **PUT /api/rooms/:id**
+  - แก้ไขข้อมูลห้องประชุม
+  - Roles: Staff
 
-{
-  "name": "Thanakrit",
-  "email": "user@example.com",
-  "password": "123456"
-}
-
-Response 201 Created
-{
-  "message": "Register successful",
-  "user": {
-    "user_id": 1,
-    "name": "Thanakrit",
-    "email": "user@example.com",
-    "role": "user"
-  }
-}
+- **DELETE /api/rooms/:id**
+  - ลบห้องประชุม
+  - Roles: Staff
 
 ---
 
-# 👤 Users API
-GET /api/users/profile
-Authorization: Bearer <token>
+## Bookings API
+### Endpoints
+- **GET /api/bookings**
+  - ดึงรายการการจองทั้งหมด
+  - Roles: Staff
 
-Response 200 OK
-{
-  "user_id": 1,
-  "name": "Thanakrit",
-  "email": "user@example.com",
-  "role": "user"
-}
+- **GET /api/bookings/me**
+  - ดึงการจองของผู้ใช้ที่ล็อกอินอยู่
+  - Roles: User
 
----
+- **POST /api/bookings**
+  - สร้างการจองใหม่ (ตรวจสอบห้องว่าง, เวลาไม่ซ้อนกัน)
+  - Roles: User
 
-# 🏢 Rooms API
-GET /api/rooms
+- **DELETE /api/bookings/:id**
+  - ยกเลิกการจองของตัวเอง
+  - Roles: User
 
-Response 200 OK
-[
-  {
-    "room_id": 1,
-    "name": "Conference Room A",
-    "capacity": 20,
-    "location": "Building 1",
-    "status": "available"
-  },
-  {
-    "room_id": 2,
-    "name": "Meeting Room B",
-    "capacity": 10,
-    "location": "Building 2",
-    "status": "available"
-  }
-]
+- **PUT /api/bookings/:id/approve**
+  - อนุมัติการจอง
+  - Roles: Staff
 
 ---
 
-POST /api/rooms
-Authorization: Bearer <staff-token>
-Content-Type: application/json
-
-{
-  "name": "VIP Room",
-  "capacity": 5,
-  "location": "Building 3",
-  "status": "available"
-}
-
-Response 201 Created
-{
-  "message": "Room created successfully",
-  "room": {
-    "room_id": 3,
-    "name": "VIP Room",
-    "capacity": 5,
-    "location": "Building 3",
-    "status": "available"
-  }
-}
+## Flow ตัวอย่าง
+1. **User** → `POST /api/bookings` → ระบบตรวจสอบห้องว่าง → ถ้าว่าง → สร้าง booking (status = `pending`)
+2. **Staff** → `PUT /api/bookings/:id/approve` → เปลี่ยนสถานะ booking เป็น `approved`
+3. **User** → `DELETE /api/bookings/:id` → ยกเลิกการจอง (status = `cancelled`)
 
 ---
 
-# 📅 Bookings API
-POST /api/bookings
-Authorization: Bearer <user-token>
-Content-Type: application/json
+## โครงสร้างโค้ด (Express.js Example)
+```js
+// routes/rooms.route.js
+router.get("/", roomController.getRooms);
+router.get("/:id", roomController.getRoomById);
+router.post("/", authStaff, roomController.createRoom);
+router.put("/:id", authStaff, roomController.updateRoom);
+router.delete("/:id", authStaff, roomController.deleteRoom);
 
-{
-  "room_id": 1,
-  "start_time": "2026-01-15T13:00:00",
-  "end_time": "2026-01-15T15:00:00"
-}
-
-Response 201 Created
-{
-  "message": "Booking created successfully",
-  "booking": {
-    "booking_id": 101,
-    "room_id": 1,
-    "user_id": 1,
-    "start_time": "2026-01-15T13:00:00",
-    "end_time": "2026-01-15T15:00:00",
-    "status": "pending"
-  }
-}
-
----
-
-GET /api/bookings/my
-Authorization: Bearer <user-token>
-
-Response 200 OK
-[
-  {
-    "booking_id": 101,
-    "room_id": 1,
-    "start_time": "2026-01-15T13:00:00",
-    "end_time": "2026-01-15T15:00:00",
-    "status": "pending"
-  }
-]
-
----
-
-PUT /api/bookings/101/approve
-Authorization: Bearer <staff-token>
-
-Response 200 OK
-{
-  "message": "Booking approved successfully",
-  "booking": {
-    "booking_id": 101,
-    "status": "approved"
-  }
-}
+// routes/bookings.route.js
+router.get("/", authStaff, bookingController.getAllBookings);
+router.get("/my", authUser, bookingController.getMyBookings);
+router.post("/", authUser, bookingController.createBooking);
+router.delete("/:id", authUser, bookingController.cancelBooking);
+router.put("/:id/approve", authStaff, bookingController.approveBooking);
