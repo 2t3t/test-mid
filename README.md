@@ -30,7 +30,7 @@
   - ดึงรายการการจองทั้งหมด
   - Roles: Staff
 
-- **GET /api/bookings/me**
+- **GET /api/bookings/my**
   - ดึงการจองของผู้ใช้ที่ล็อกอินอยู่
   - Roles: User
 
