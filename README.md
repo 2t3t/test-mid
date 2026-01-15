@@ -1,7 +1,17 @@
 # RESTful API Design - Meeting Room Booking System
 
-## Rooms API
-### Endpoints
+## 🔑 Auth API
+- **POST /api/auth/login**
+  - Login เข้าสู่ระบบ
+
+- **POST /api/auth/register**
+  - Register สมัครสมาชิกใหม่
+
+## 👤 Users API
+- **GET /api/users/profile**
+  - ดูข้อมูลตัวเอง (ต้อง login ก่อน)
+
+## 🏢 Rooms API
 - **GET /api/rooms**
   - ดึงรายการห้องทั้งหมด (รองรับ filter เช่น capacity, location)
   - Roles: User, Staff
@@ -22,15 +32,12 @@
   - ลบห้องประชุม
   - Roles: Staff
 
----
-
-## Bookings API
-### Endpoints
+## 📅 Bookings API
 - **GET /api/bookings**
   - ดึงรายการการจองทั้งหมด
   - Roles: Staff
 
-- **GET /api/bookings/me**
+- **GET /api/bookings/my**
   - ดึงการจองของผู้ใช้ที่ล็อกอินอยู่
   - Roles: User
 
@@ -48,23 +55,30 @@
 
 ---
 
-## Flow ตัวอย่าง
-1. **User** → `POST /api/bookings` → ระบบตรวจสอบห้องว่าง → ถ้าว่าง → สร้าง booking (status = `pending`)
-2. **Staff** → `PUT /api/bookings/:id/approve` → เปลี่ยนสถานะ booking เป็น `approved`
-3. **User** → `DELETE /api/bookings/:id` → ยกเลิกการจอง (status = `cancelled`)
+## 🔗 ตัวอย่าง Flow
+1. User → `POST /api/auth/login` → เข้าสู่ระบบ  
+2. User → `POST /api/bookings` → ระบบตรวจสอบห้องว่าง → ถ้าว่าง → สร้าง booking (status = pending)  
+3. Staff → `PUT /api/bookings/:id/approve` → เปลี่ยนสถานะ booking เป็น approved  
+4. User → `DELETE /api/bookings/:id` → ยกเลิกการจอง (status = cancelled)  
+5. User → `GET /api/users/profile` → ดูข้อมูลตัวเอง  
 
 ---
 
-## โครงสร้างโค้ด (Express.js Example)
-```js
+## 🧾 ตัวอย่าง Request/Response
+
+### POST /api/bookings
+**Request Body**
+```json
 {
   "room_id": 101,
   "booking_date": "2026-01-15",
   "start_time": "09:00",
   "end_time": "12:00",
-  "purpose": "ประชุมโครงงาน",
+  "purpose": "ประชุมโครงการ",
   "attendees": 8
 }
+
+
 {
   "id": 1234,
   "room_id": 101,
@@ -73,7 +87,8 @@
   "booking_date": "2026-01-15",
   "start_time": "09:00",
   "end_time": "12:00",
-  "purpose": "ประชุมโครงงาน",
+  "purpose": "ประชุมโครงการ",
   "status": "pending",
   "created_at": "2026-01-08T10:30:00Z"
 }
+
